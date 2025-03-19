@@ -1,0 +1,209 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Gestión Académica{% endblock %}
+
+{% block content %}
+<div x-data="{ sidebarOpen: false }" class="flex h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-indigo-700 overflow-y-auto lg:translate-x-0 lg:static lg:inset-0">
+        <div class="flex items-center justify-center mt-8">
+            <div class="flex items-center">
+                <span class="text-white text-2xl mx-2 font-semibold">SGA</span>
+            </div>
+        </div>
+
+        <nav class="mt-10">
+            <a class="flex items-center mt-4 py-2 px-6 bg-indigo-800 bg-opacity-25 text-white" href="/dashboard">
+                <i class="fas fa-tachometer-alt mr-3"></i>
+                <span class="mx-3">Dashboard</span>
+            </a>
+
+            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
+                <i class="fas fa-book mr-3"></i>
+                <span class="mx-3">Cursos</span>
+            </a>
+
+            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
+                <i class="fas fa-users mr-3"></i>
+                <span class="mx-3">Secciones</span>
+            </a>
+
+            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
+                <i class="fas fa-user-graduate mr-3"></i>
+                <span class="mx-3">Estudiantes</span>
+            </a>
+
+            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
+                <i class="fas fa-file-alt mr-3"></i>
+                <span class="mx-3">Exámenes</span>
+            </a>
+
+            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
+                <i class="fas fa-cog mr-3"></i>
+                <span class="mx-3">Configuración</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="flex justify-between items-center py-4 px-6 bg-white border-b-4 border-indigo-600">
+            <div class="flex items-center">
+                <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 focus:outline-none lg:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div class="flex items-center">
+                <div x-data="{ dropdownOpen: false }" class="relative">
+                    <button @click="dropdownOpen = !dropdownOpen" class="relative block h-8 w-8 rounded-full overflow-hidden shadow focus:outline-none">
+                        <i class="fas fa-user-circle text-2xl text-indigo-600"></i>
+                    </button>
+
+                    <div x-show="dropdownOpen" @click.away="dropdownOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-10">
+                        <div class="block px-4 py-2 text-sm text-gray-700">
+                            {{ user.full_name }}
+                        </div>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white">Mi perfil</a>
+                        <a href="#" id="logout-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white">Cerrar sesión</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+            <div class="container mx-auto px-6 py-8">
+                <h3 class="text-gray-700 text-3xl font-medium">Dashboard</h3>
+
+                <div class="mt-4">
+                    <div class="flex flex-wrap -mx-6">
+                        <div class="w-full px-6 sm:w-1/2 xl:w-1/3">
+                            <div class="flex items-center px-5 py-6 shadow-sm rounded-md bg-white">
+                                <div class="p-3 rounded-full bg-indigo-600 bg-opacity-75">
+                                    <i class="fas fa-book text-white"></i>
+                                </div>
+
+                                <div class="mx-5">
+                                    <h4 class="text-2xl font-semibold text-gray-700">8</h4>
+                                    <div class="text-gray-500">Cursos activos</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-full mt-6 px-6 sm:w-1/2 xl:w-1/3 sm:mt-0">
+                            <div class="flex items-center px-5 py-6 shadow-sm rounded-md bg-white">
+                                <div class="p-3 rounded-full bg-green-600 bg-opacity-75">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+
+                                <div class="mx-5">
+                                    <h4 class="text-2xl font-semibold text-gray-700">12</h4>
+                                    <div class="text-gray-500">Secciones</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-full mt-6 px-6 sm:w-1/2 xl:w-1/3 xl:mt-0">
+                            <div class="flex items-center px-5 py-6 shadow-sm rounded-md bg-white">
+                                <div class="p-3 rounded-full bg-pink-600 bg-opacity-75">
+                                    <i class="fas fa-user-graduate text-white"></i>
+                                </div>
+
+                                <div class="mx-5">
+                                    <h4 class="text-2xl font-semibold text-gray-700">215</h4>
+                                    <div class="text-gray-500">Estudiantes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <div class="flex flex-col mt-8">
+                        <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+                            <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+                                <table class="min-w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Curso</th>
+                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Sección</th>
+                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Estudiantes</th>
+                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Estado</th>
+                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <div class="flex items-center">
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium leading-5 text-gray-900">Matemática Avanzada</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <div class="text-sm leading-5 text-gray-900">A</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <div class="text-sm leading-5 text-gray-900">25</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">Activo</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap border-b border-gray-200">
+                                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Editar</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <div class="flex items-center">
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium leading-5 text-gray-900">Física Cuántica</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <div class="text-sm leading-5 text-gray-900">B</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <div class="text-sm leading-5 text-gray-900">18</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                                <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">Activo</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap border-b border-gray-200">
+                                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Editar</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar autenticación
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+    }
+    
+    // Manejar cierre de sesión
+    document.getElementById('logout-button').addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+    });
+});
+</script>
+{% endblock %}
