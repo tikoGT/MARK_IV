@@ -54,8 +54,28 @@ async def login(request: Request):
 
 @app.get("/dashboard")
 async def dashboard(request: Request):
-    # Aquí eventualmente verificaríamos la autenticación
     return templates.TemplateResponse("dashboard.html", {"request": request, "user": {"full_name": "Administrador"}})
+
+@app.get("/courses")
+async def courses(request: Request):
+    return templates.TemplateResponse("courses/index.html", {"request": request, "user": {"full_name": "Administrador"}})
+
+@app.get("/sections")
+async def sections(request: Request):
+    return templates.TemplateResponse("sections/index.html", {"request": request, "user": {"full_name": "Administrador"}})
+
+@app.get("/students")
+async def students(request: Request):
+    return templates.TemplateResponse("students/index.html", {"request": request, "user": {"full_name": "Administrador"}})
+
+@app.get("/exams")
+async def exams(request: Request):
+    return templates.TemplateResponse("exams/index.html", {"request": request, "user": {"full_name": "Administrador"}})
+
+@app.get("/settings")
+async def settings_page(request: Request):
+    return templates.TemplateResponse("settings.html", {"request": request, "user": {"full_name": "Administrador"}})
+
 
 # Carpetas de almacenamiento
 os.makedirs("storage/courses", exist_ok=True)

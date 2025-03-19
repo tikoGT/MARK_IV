@@ -1,0 +1,52 @@
+<!-- templates/dashboard_sidebar.html -->
+<div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-indigo-700 overflow-y-auto lg:translate-x-0 lg:static lg:inset-0">
+    <div class="flex items-center justify-center mt-8">
+        <div class="flex items-center">
+            <span class="text-white text-2xl mx-2 font-semibold">SGA</span>
+        </div>
+    </div>
+
+    <nav class="mt-10">
+        <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" 
+           href="/dashboard" 
+           :class="{'bg-indigo-800 bg-opacity-25': window.location.pathname === '/dashboard'}">
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            <span class="mx-3">Dashboard</span>
+        </a>
+
+        <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" 
+           href="/courses" 
+           :class="{'bg-indigo-800 bg-opacity-25': window.location.pathname.startsWith('/courses')}">
+            <i class="fas fa-book mr-3"></i>
+            <span class="mx-3">Cursos</span>
+        </a>
+
+        <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" 
+           href="/sections" 
+           :class="{'bg-indigo-800 bg-opacity-25': window.location.pathname.startsWith('/sections')}">
+            <i class="fas fa-users mr-3"></i>
+            <span class="mx-3">Secciones</span>
+        </a>
+
+        <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" 
+           href="/students" 
+           :class="{'bg-indigo-800 bg-opacity-25': window.location.pathname.startsWith('/students')}">
+            <i class="fas fa-user-graduate mr-3"></i>
+            <span class="mx-3">Estudiantes</span>
+        </a>
+
+        <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" 
+           href="/exams" 
+           :class="{'bg-indigo-800 bg-opacity-25': window.location.pathname.startsWith('/exams')}">
+            <i class="fas fa-file-alt mr-3"></i>
+            <span class="mx-3">Exámenes</span>
+        </a>
+
+        <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" 
+           href="/settings" 
+           :class="{'bg-indigo-800 bg-opacity-25': window.location.pathname.startsWith('/settings')}">
+            <i class="fas fa-cog mr-3"></i>
+            <span class="mx-3">Configuración</span>
+        </a>
+    </nav>
+</div>

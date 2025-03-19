@@ -110,8 +110,10 @@ def delete_section(db: Session, section_id: int) -> bool:
 
 # --- Materiales ---
 def get_material(db: Session, material_id: int) -> Optional[Material]:
+    """
+    Obtener un material por su ID
+    """
     return db.query(Material).filter(Material.id == material_id).first()
-
 def get_materials_by_course(
     db: Session, course_id: int, skip: int = 0, limit: int = 100
 ) -> List[Material]:

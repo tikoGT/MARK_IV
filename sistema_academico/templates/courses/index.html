@@ -1,0 +1,712 @@
+{% extends "base.html" %}
+
+{% block title %}Cursos - Sistema de Gestión Académica{% endblock %}
+
+{% block content %}
+<div class="flex h-screen bg-gray-100">
+    {% include "dashboard_sidebar.html" %}
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        {% include "dashboard_header.html" %}
+
+        <main class="flex-1 overflow-y-auto bg-gray-200">
+            <div class="container mx-auto px-6 py-8">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-medium text-gray-700">Cursos</h1>
+                    <button id="new-course-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none">
+                        <i class="fas fa-plus mr-2"></i> Nuevo Curso
+                    </button>
+                </div>
+                
+                <div class="mt-6">
+                    <div class="flex rounded-md shadow-sm">
+                        <input type="text" id="search-input" placeholder="Buscar cursos..." class="form-input py-3 px-4 block w-full rounded-md transition duration-150 ease-in-out sm:text-sm sm:leading-5">
+                        <button id="search-btn" class="bg-indigo-600 text-white px-4 rounded-r-md hover:bg-indigo-700 focus:outline-none">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                                <th class="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                                <th class="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                <th class="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase">Secciones</th>
+                                <th class="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courses-table">
+                            <!-- Datos se cargarán con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal de Curso -->
+<div id="course-modal" class="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center hidden">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">Nuevo Curso</h3>
+            
+            <form id="course-form" class="space-y-4">
+                <input type="hidden" id="course-id">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" name="name" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea name="description" id="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_active" id="is_active" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="is_active" class="ml-2 block text-sm text-gray-900">Activo</label>
+                </div>
+            </form>
+        </div>
+        
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button id="save-course-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                Guardar
+            </button>
+            <button id="cancel-course-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Upload Material -->
+<div id="upload-modal" class="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center hidden">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Subir Material</h3>
+            
+            <form id="upload-form" class="space-y-4">
+                <input type="hidden" id="material-course-id">
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700">Título</label>
+                    <input type="text" name="title" id="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label for="material-description" class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea name="description" id="material-description" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Archivo</label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md dropzone">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
+                                    <span>Subir un archivo</span>
+                                    <input id="file-upload" name="file" type="file" class="sr-only">
+                                </label>
+                                <p class="pl-1">o arrastrar y soltar</p>
+                            </div>
+                            <p class="text-xs text-gray-500">
+                                PDF, DOC, DOCX, PPT, PPTX hasta 10MB
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button id="upload-material-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                Subir
+            </button>
+            <button id="cancel-upload-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Materiales -->
+<div id="materials-modal" class="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center hidden">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="materials-title">Materiales del Curso</h3>
+                <button id="close-materials-btn" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="materials-loading" class="flex justify-center py-4">
+                <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            
+            <div id="materials-empty" class="py-4 hidden">
+                <p class="text-center text-gray-500">No hay materiales disponibles para este curso.</p>
+            </div>
+            
+            <div id="materials-list" class="divide-y divide-gray-200 hidden"></div>
+        </div>
+        
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button id="close-materials-btn-footer" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables globales
+    let courses = [];
+    let isEditing = false;
+    let courseToEdit = null;
+    
+    // Referencias a elementos DOM
+    const courseTable = document.getElementById('courses-table');
+    const courseModal = document.getElementById('course-modal');
+    const courseForm = document.getElementById('course-form');
+    const courseIdInput = document.getElementById('course-id');
+    const nameInput = document.getElementById('name');
+    const descriptionInput = document.getElementById('description');
+    const isActiveInput = document.getElementById('is_active');
+    const modalTitle = document.getElementById('modal-title');
+    const newCourseBtn = document.getElementById('new-course-btn');
+    const saveCourseBtn = document.getElementById('save-course-btn');
+    const cancelCourseBtn = document.getElementById('cancel-course-btn');
+    
+    const uploadModal = document.getElementById('upload-modal');
+    const uploadForm = document.getElementById('upload-form');
+    const materialCourseIdInput = document.getElementById('material-course-id');
+    const uploadMaterialBtn = document.getElementById('upload-material-btn');
+    const cancelUploadBtn = document.getElementById('cancel-upload-btn');
+    const fileUpload = document.getElementById('file-upload');
+    
+    const materialsModal = document.getElementById('materials-modal');
+    const materialsTitle = document.getElementById('materials-title');
+    const materialsLoading = document.getElementById('materials-loading');
+    const materialsEmpty = document.getElementById('materials-empty');
+    const materialsList = document.getElementById('materials-list');
+    const closeMaterialsBtn = document.getElementById('close-materials-btn');
+    const closeMaterialsBtnFooter = document.getElementById('close-materials-btn-footer');
+    
+    // Cargar cursos
+    loadCourses();
+    
+    // Configurar manejo de archivo
+    if (fileUpload) {
+        fileUpload.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                const fileName = e.target.files[0].name;
+                const fileNameDisplay = document.createElement('p');
+                fileNameDisplay.textContent = `Archivo seleccionado: ${fileName}`;
+                fileNameDisplay.classList.add('text-sm', 'text-gray-600', 'mt-2');
+                
+                const previousDisplay = document.querySelector('.dropzone p.mt-2');
+                if (previousDisplay) {
+                    previousDisplay.remove();
+                }
+                
+                const dropzone = document.querySelector('.dropzone .space-y-1');
+                if (dropzone) {
+                    dropzone.appendChild(fileNameDisplay);
+                }
+            }
+        });
+    }
+    
+    // Event Listeners
+    newCourseBtn.addEventListener('click', function() {
+        isEditing = false;
+        courseToEdit = null;
+        modalTitle.textContent = 'Nuevo Curso';
+        courseForm.reset();
+        courseIdInput.value = '';
+        isActiveInput.checked = true;
+        courseModal.classList.remove('hidden');
+    });
+    
+    cancelCourseBtn.addEventListener('click', function() {
+        courseModal.classList.add('hidden');
+    });
+    
+    saveCourseBtn.addEventListener('click', async function() {
+        const courseData = {
+            name: nameInput.value,
+            description: descriptionInput.value,
+            is_active: isActiveInput.checked
+        };
+        
+        if (!courseData.name) {
+            showNotification('El nombre del curso es requerido', 'error');
+            return;
+        }
+        
+        try {
+            if (isEditing) {
+                await updateCourse(courseToEdit, courseData);
+            } else {
+                await createCourse(courseData);
+            }
+            courseModal.classList.add('hidden');
+            loadCourses();
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al guardar el curso', 'error');
+        }
+    });
+    
+    cancelUploadBtn.addEventListener('click', function() {
+        uploadModal.classList.add('hidden');
+    });
+    
+    uploadMaterialBtn.addEventListener('click', async function() {
+        const courseId = materialCourseIdInput.value;
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('material-description').value;
+        const file = fileUpload.files[0];
+        
+        if (!title) {
+            showNotification('El título es requerido', 'error');
+            return;
+        }
+        
+        if (!file) {
+            showNotification('Debe seleccionar un archivo', 'error');
+            return;
+        }
+        
+        try {
+            await uploadMaterial(courseId, title, description, file);
+            uploadModal.classList.add('hidden');
+            uploadForm.reset();
+            showNotification('Material subido correctamente', 'success');
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al subir el material', 'error');
+        }
+    });
+    
+    closeMaterialsBtn.addEventListener('click', function() {
+        materialsModal.classList.add('hidden');
+    });
+    
+    closeMaterialsBtnFooter.addEventListener('click', function() {
+        materialsModal.classList.add('hidden');
+    });
+    
+    // Funciones
+    async function loadCourses() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            const response = await fetch('/api/v1/courses/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                courses = await response.json();
+                renderCourses();
+            } else {
+                console.error('Error al cargar cursos');
+                showNotification('Error al cargar cursos', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al cargar cursos', 'error');
+        }
+    }
+    
+    function renderCourses() {
+        courseTable.innerHTML = '';
+        
+        courses.forEach(course => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-6 py-4 border-b">${course.name}</td>
+                <td class="px-6 py-4 border-b">${course.description || ''}</td>
+                <td class="px-6 py-4 border-b">
+                    <span class="px-2 py-1 text-xs rounded-full ${course.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${course.is_active ? 'Activo' : 'Inactivo'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 border-b">${course.sections ? course.sections.length : 0}</td>
+                <td class="px-6 py-4 border-b flex space-x-2">
+                    <button class="text-indigo-600 hover:text-indigo-900 edit-btn" data-id="${course.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-blue-600 hover:text-blue-900 upload-btn" data-id="${course.id}">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                    <button class="text-green-600 hover:text-green-900 materials-btn" data-id="${course.id}" data-name="${course.name}">
+                        <i class="fas fa-book-open"></i>
+                    </button>
+                    <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${course.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            courseTable.appendChild(row);
+        });
+        
+        // Agregar event listeners a los botones
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const courseId = this.getAttribute('data-id');
+                editCourse(courseId);
+            });
+        });
+        
+        document.querySelectorAll('.upload-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const courseId = this.getAttribute('data-id');
+                showUploadModal(courseId);
+            });
+        });
+        
+        document.querySelectorAll('.materials-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const courseId = this.getAttribute('data-id');
+                const courseName = this.getAttribute('data-name');
+                showMaterialsModal(courseId, courseName);
+            });
+        });
+        
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const courseId = this.getAttribute('data-id');
+                deleteCourse(courseId);
+            });
+        });
+    }
+    
+    async function createCourse(courseData) {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const response = await fetch('/api/v1/courses/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(courseData)
+        });
+        
+        if (response.ok) {
+            showNotification('Curso creado correctamente', 'success');
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Error al crear curso');
+        }
+    }
+    
+    async function updateCourse(courseId, courseData) {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const response = await fetch(`/api/v1/courses/${courseId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(courseData)
+        });
+        
+        if (response.ok) {
+            showNotification('Curso actualizado correctamente', 'success');
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Error al actualizar curso');
+        }
+    }
+    
+    function editCourse(courseId) {
+        const course = courses.find(c => c.id == courseId);
+        if (!course) return;
+        
+        isEditing = true;
+        courseToEdit = courseId;
+        modalTitle.textContent = 'Editar Curso';
+        courseIdInput.value = course.id;
+        nameInput.value = course.name;
+        descriptionInput.value = course.description || '';
+        isActiveInput.checked = course.is_active;
+        courseModal.classList.remove('hidden');
+    }
+    
+    function showUploadModal(courseId) {
+        materialCourseIdInput.value = courseId;
+        uploadForm.reset();
+        // Limpiar la visualización del archivo
+        const previousDisplay = document.querySelector('.dropzone p.mt-2');
+        if (previousDisplay) {
+            previousDisplay.remove();
+        }
+        uploadModal.classList.remove('hidden');
+    }
+    
+    async function uploadMaterial(courseId, title, description, file) {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const formData = new FormData();
+        formData.append('title', title);
+        if (description) formData.append('description', description);
+        formData.append('file', file);
+        
+        const response = await fetch(`/api/v1/courses/${courseId}/materials`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.detail || 'Error al subir material');
+        }
+    }
+    
+    async function showMaterialsModal(courseId, courseName) {
+        materialsTitle.textContent = `Materiales del Curso: ${courseName}`;
+        materialsLoading.classList.remove('hidden');
+        materialsEmpty.classList.add('hidden');
+        materialsList.classList.add('hidden');
+        materialsList.innerHTML = '';
+        materialsModal.classList.remove('hidden');
+        
+        try {
+            const materials = await getMaterials(courseId);
+            materialsLoading.classList.add('hidden');
+            
+            if (materials.length === 0) {
+                materialsEmpty.classList.remove('hidden');
+            } else {
+                materialsList.classList.remove('hidden');
+                renderMaterials(materials);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            materialsLoading.classList.add('hidden');
+            materialsEmpty.classList.remove('hidden');
+            materialsEmpty.querySelector('p').textContent = 'Error al cargar materiales';
+        }
+    }
+    
+    async function getMaterials(courseId) {
+        const token = localStorage.getItem('token');
+        if (!token) return [];
+        
+        const response = await fetch(`/api/v1/courses/${courseId}/materials`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            return await response.json();
+        } else {
+            throw new Error('Error al cargar materiales');
+        }
+    }
+    
+    function renderMaterials(materials) {
+        materialsList.innerHTML = '';
+        
+        materials.forEach(material => {
+            const item = document.createElement('div');
+            item.className = 'py-4';
+            
+            const uploadDate = material.upload_date ? formatDate(material.upload_date) : '';
+            const fileType = material.file_type ? material.file_type.toUpperCase() : '';
+            
+            item.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-900">${material.title}</h4>
+                        <p class="text-sm text-gray-500">${material.description || 'Sin descripción'}</p>
+                        <p class="text-xs text-gray-400 mt-1">
+                            ${fileType ? `Tipo: ${fileType}` : ''}
+                            ${uploadDate ? ` | Subido: ${uploadDate}` : ''}
+                        </p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="text-indigo-600 hover:text-indigo-900 download-btn" data-id="${material.id}" title="Descargar">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="text-blue-600 hover:text-blue-900 view-btn" data-id="${material.id}" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            materialsList.appendChild(item);
+        });
+        
+        // Agregar event listeners
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const materialId = this.getAttribute('data-id');
+                downloadMaterial(materialId);
+            });
+        });
+        
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const materialId = this.getAttribute('data-id');
+                viewMaterial(materialId);
+            });
+        });
+    }
+    
+    async function downloadMaterial(materialId) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            
+            const response = await fetch(`/api/v1/materials/${materialId}/download`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                let filename = 'material.pdf';
+                const disposition = response.headers.get('Content-Disposition');
+                if (disposition && disposition.indexOf('filename=') !== -1) {
+                    filename = disposition.substring(disposition.indexOf('filename=') + 9).replace(/"/g, '');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } else {
+                showNotification('Error al descargar el material', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al descargar el material', 'error');
+        }
+    }
+    
+    async function viewMaterial(materialId) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            
+            const response = await fetch(`/api/v1/materials/${materialId}/view`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            } else {
+                showNotification('Error al abrir el material', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al visualizar el material', 'error');
+        }
+    }
+    
+    async function deleteCourse(courseId) {
+        if (!confirm('¿Está seguro de desactivar este curso?')) return;
+        
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            
+            const response = await fetch(`/api/v1/courses/${courseId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                showNotification('Curso desactivado correctamente', 'success');
+                loadCourses();
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || 'Error al desactivar curso');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al desactivar curso', 'error');
+        }
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        
+        return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+    
+    function showNotification(message, type = 'info') {
+        // Crear notificación
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type} fade-in`;
+        notification.innerText = message;
+        
+        document.body.appendChild(notification);
+        
+        // Eliminar después de 3 segundos
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 500);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

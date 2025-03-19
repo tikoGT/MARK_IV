@@ -5,72 +5,12 @@
 
 {% block content %}
 <div x-data="{ sidebarOpen: false }" class="flex h-screen bg-gray-100">
-    <!-- Sidebar -->
-    <div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-indigo-700 overflow-y-auto lg:translate-x-0 lg:static lg:inset-0">
-        <div class="flex items-center justify-center mt-8">
-            <div class="flex items-center">
-                <span class="text-white text-2xl mx-2 font-semibold">SGA</span>
-            </div>
-        </div>
-
-        <nav class="mt-10">
-            <a class="flex items-center mt-4 py-2 px-6 bg-indigo-800 bg-opacity-25 text-white" href="/dashboard">
-                <i class="fas fa-tachometer-alt mr-3"></i>
-                <span class="mx-3">Dashboard</span>
-            </a>
-
-            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
-                <i class="fas fa-book mr-3"></i>
-                <span class="mx-3">Cursos</span>
-            </a>
-
-            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
-                <i class="fas fa-users mr-3"></i>
-                <span class="mx-3">Secciones</span>
-            </a>
-
-            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
-                <i class="fas fa-user-graduate mr-3"></i>
-                <span class="mx-3">Estudiantes</span>
-            </a>
-
-            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
-                <i class="fas fa-file-alt mr-3"></i>
-                <span class="mx-3">Exámenes</span>
-            </a>
-
-            <a class="flex items-center mt-4 py-2 px-6 text-white hover:bg-indigo-600" href="#">
-                <i class="fas fa-cog mr-3"></i>
-                <span class="mx-3">Configuración</span>
-            </a>
-        </nav>
-    </div>
+    <!-- Barra lateral - incluida desde un partial -->
+    {% include "dashboard_sidebar.html" %}
 
     <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- Header -->
-        <header class="flex justify-between items-center py-4 px-6 bg-white border-b-4 border-indigo-600">
-            <div class="flex items-center">
-                <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 focus:outline-none lg:hidden">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-
-            <div class="flex items-center">
-                <div x-data="{ dropdownOpen: false }" class="relative">
-                    <button @click="dropdownOpen = !dropdownOpen" class="relative block h-8 w-8 rounded-full overflow-hidden shadow focus:outline-none">
-                        <i class="fas fa-user-circle text-2xl text-indigo-600"></i>
-                    </button>
-
-                    <div x-show="dropdownOpen" @click.away="dropdownOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-10">
-                        <div class="block px-4 py-2 text-sm text-gray-700">
-                            {{ user.full_name }}
-                        </div>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white">Mi perfil</a>
-                        <a href="#" id="logout-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white">Cerrar sesión</a>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Header - incluido desde un partial -->
+        {% include "dashboard_header.html" %}
 
         <!-- Main content -->
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
@@ -86,7 +26,7 @@
                                 </div>
 
                                 <div class="mx-5">
-                                    <h4 class="text-2xl font-semibold text-gray-700">8</h4>
+                                    <h4 class="text-2xl font-semibold text-gray-700" id="courses-count">0</h4>
                                     <div class="text-gray-500">Cursos activos</div>
                                 </div>
                             </div>
@@ -99,7 +39,7 @@
                                 </div>
 
                                 <div class="mx-5">
-                                    <h4 class="text-2xl font-semibold text-gray-700">12</h4>
+                                    <h4 class="text-2xl font-semibold text-gray-700" id="sections-count">0</h4>
                                     <div class="text-gray-500">Secciones</div>
                                 </div>
                             </div>
@@ -112,7 +52,7 @@
                                 </div>
 
                                 <div class="mx-5">
-                                    <h4 class="text-2xl font-semibold text-gray-700">215</h4>
+                                    <h4 class="text-2xl font-semibold text-gray-700" id="students-count">0</h4>
                                     <div class="text-gray-500">Estudiantes</div>
                                 </div>
                             </div>
@@ -121,64 +61,66 @@
                 </div>
 
                 <div class="mt-8">
-                    <div class="flex flex-col mt-8">
-                        <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-                            <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
-                                <table class="min-w-full">
-                                    <thead>
-                                        <tr>
-                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Curso</th>
-                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Sección</th>
-                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Estudiantes</th>
-                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Estado</th>
-                                            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white">
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <div class="flex items-center">
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium leading-5 text-gray-900">Matemática Avanzada</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <div class="text-sm leading-5 text-gray-900">A</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <div class="text-sm leading-5 text-gray-900">25</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">Activo</span>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap border-b border-gray-200">
-                                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Editar</a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <div class="flex items-center">
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium leading-5 text-gray-900">Física Cuántica</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <div class="text-sm leading-5 text-gray-900">B</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <div class="text-sm leading-5 text-gray-900">18</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                                <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">Activo</span>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap border-b border-gray-200">
-                                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Editar</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <h4 class="text-gray-700 text-lg font-medium mb-4">Actividad Reciente</h4>
+                    <div class="flex flex-col">
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h5 class="text-lg font-medium text-gray-900">Cursos Activos</h5>
+                                    <a href="/courses" class="text-indigo-600 hover:text-indigo-900">Ver todos</a>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Curso</th>
+                                                <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Secciones</th>
+                                                <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Estudiantes</th>
+                                                <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recent-courses-body">
+                                            <!-- Datos cargados dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h5 class="text-lg font-medium text-gray-900 mb-4">Próximos Exámenes</h5>
+                            <ul class="divide-y divide-gray-200" id="upcoming-exams-list">
+                                <!-- Datos cargados dinámicamente -->
+                                <li class="py-3">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Primer Parcial Matemáticas</p>
+                                            <p class="text-sm text-gray-500">Matemática Avanzada - Sección A</p>
+                                        </div>
+                                        <div>
+                                            <span class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">Parcial</span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="mt-4 text-center">
+                                <a href="/exams" class="text-sm font-medium text-indigo-600 hover:text-indigo-900">Ver todos los exámenes</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h5 class="text-lg font-medium text-gray-900 mb-4">Estudiantes Recientes</h5>
+                            <ul class="divide-y divide-gray-200" id="recent-students-list">
+                                <!-- Datos cargados dinámicamente -->
+                            </ul>
+                            <div class="mt-4 text-center">
+                                <a href="/students" class="text-sm font-medium text-indigo-600 hover:text-indigo-900">Ver todos los estudiantes</a>
                             </div>
                         </div>
                     </div>
@@ -204,6 +146,98 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.removeItem('token');
         window.location.href = '/login';
     });
+
+    // Cargar datos del dashboard
+    loadDashboardData();
+
+    // Función para cargar datos
+    async function loadDashboardData() {
+        try {
+            // Obtener cursos
+            const courses = await apiRequest('/api/v1/courses/');
+            document.getElementById('courses-count').textContent = courses.length;
+
+            // Mostrar cursos recientes
+            const recentCoursesBody = document.getElementById('recent-courses-body');
+            recentCoursesBody.innerHTML = '';
+
+            // Mostrar como máximo 3 cursos
+            const coursesToShow = courses.slice(0, 3);
+            coursesToShow.forEach(course => {
+                const row = document.createElement('tr');
+                
+                // Nombre del curso
+                const nameCell = document.createElement('td');
+                nameCell.className = 'px-6 py-4 whitespace-no-wrap border-b border-gray-200';
+                nameCell.innerHTML = `<div class="text-sm font-medium leading-5 text-gray-900">${course.name}</div>`;
+                
+                // Secciones
+                const sectionsCell = document.createElement('td');
+                sectionsCell.className = 'px-6 py-4 whitespace-no-wrap border-b border-gray-200';
+                sectionsCell.innerHTML = `<div class="text-sm leading-5 text-gray-900">${course.sections ? course.sections.length : 0}</div>`;
+                
+                // Estudiantes
+                const studentsCell = document.createElement('td');
+                studentsCell.className = 'px-6 py-4 whitespace-no-wrap border-b border-gray-200';
+                studentsCell.innerHTML = `<div class="text-sm leading-5 text-gray-900">-</div>`;
+                
+                // Acciones
+                const actionsCell = document.createElement('td');
+                actionsCell.className = 'px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap border-b border-gray-200';
+                actionsCell.innerHTML = `<a href="/courses" class="text-indigo-600 hover:text-indigo-900">Ver detalles</a>`;
+                
+                row.appendChild(nameCell);
+                row.appendChild(sectionsCell);
+                row.appendChild(studentsCell);
+                row.appendChild(actionsCell);
+                
+                recentCoursesBody.appendChild(row);
+            });
+
+            // Obtener estudiantes
+            const students = await apiRequest('/api/v1/students/');
+            document.getElementById('students-count').textContent = students.length;
+
+            // Mostrar estudiantes recientes
+            const recentStudentsList = document.getElementById('recent-students-list');
+            recentStudentsList.innerHTML = '';
+
+            // Si no hay estudiantes, mostrar mensaje
+            if (students.length === 0) {
+                recentStudentsList.innerHTML = '<li class="py-3 text-center text-sm text-gray-500">No hay estudiantes registrados</li>';
+            } else {
+                // Mostrar como máximo 4 estudiantes
+                const studentsToShow = students.slice(0, 4);
+                studentsToShow.forEach(student => {
+                    const li = document.createElement('li');
+                    li.className = 'py-3';
+                    li.innerHTML = `
+                        <div class="flex justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${student.full_name}</p>
+                                <p class="text-sm text-gray-500">${student.email}</p>
+                            </div>
+                            <a href="/students" class="text-indigo-600 hover:text-indigo-900">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    `;
+                    recentStudentsList.appendChild(li);
+                });
+            }
+
+            // Contar secciones
+            let sectionsCount = 0;
+            courses.forEach(course => {
+                sectionsCount += course.sections ? course.sections.length : 0;
+            });
+            document.getElementById('sections-count').textContent = sectionsCount;
+
+        } catch (error) {
+            console.error('Error al cargar datos del dashboard:', error);
+            showNotification('Error al cargar datos del dashboard', 'error');
+        }
+    }
 });
 </script>
 {% endblock %}
